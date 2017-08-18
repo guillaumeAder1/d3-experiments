@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>My first d3.js</title>
+</head>
+
+<body>
+    <div id="mySVG"></div>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script>
+        var circles = [
+            { cx: 0, cy: 20, r: 10 },
+            { cx: 30, cy: 20, r: 10 },
+            { cx: 60, cy: 20, r: 10 },
+        ];
+        var svg = d3.select("#mySVG")
+            .append("svg")
+            .attr("width", 200)
+            .attr("height", 200);
+
+        var t = d3.transition()
+            .duration(750)
+            .ease(d3.easeSinInOut).delay(500);
+        var t2 = d3.transition()
+            .duration(50)
+            .ease(d3.easeSinInOut);
+
+        var posx = 10;
+        var circle = svg.selectAll('circle').data(circles).enter().append('circle')
+            .attr('cx', function (d) { return d.cx })
+            .attr('cy', function (d) { return d.cy })
+            .attr('r', function (d) { return d.r })
+            .transition(t)
+                .delay(function (d, i) { return 250 * i; }) // delay create animation async for each circle
+                .on('start', function repeat() {
+                    //posx += 2;
+                    d3.active(this) 
+                        .style("opacity", "1") // first anim
+                        .attr('r', 20)
+                        .attr('cx' , function(d,i){return d.cx + 30})
+                        .transition() 
+                            .attr('r', 10)// second anim to go back to init postion
+                            .style("opacity", "0") // first anim                            
+                            .attr('cx', function(d,i){return d.cx + posx })
+                        .transition() // repeat anim
+                            .on('start', repeat);
+
+                })               
+
+
+
+        function toto() {
+            console.log('dikjdd')
+        }
+    </script>
+</body>

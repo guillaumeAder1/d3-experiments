@@ -6,8 +6,17 @@
     <title>My first d3.js</title>
 </head>
 
+<style>
+
+    .svg{
+        width:300px;
+        height:150px;
+        background-color: pink;
+    }
+</style>
 <body>
     <div id="mySVG"></div>
+    <div class="svg"></div>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script>
 
@@ -17,12 +26,16 @@
                 params:null,
                 svg:null,
                 containerSize:null, 
-                margin: 5,
+                margin: 0,
 
                 init: function(params){
                     this.params = params;
                     this.createSVG(params.container);
                     this.createDots(params.nrbDots, params.dotRadius);
+
+                    // document.querySelector(params.container).addEventListener('mousemove', function(e){
+                    //     this.getMousePosition(e.x, e.y) 
+                    // })
                 },
 
                 createSVG: function(domNode){
@@ -30,13 +43,17 @@
                     // TODO change how to get the container Width/height
                     var element = document.querySelector(domNode);
                     this.containerSize = {
-                        w: window.innerWidth,
-                        h: window.innerHeight
+                        w: element.offsetWidth,
+                        h: element.offsetHeight
                     };
                     this.svg = d3.select(dom)
                         .append("svg")
                         .attr("width", this.containerSize.w)
                         .attr("height", this.containerSize.h);
+
+                    // debug
+                    this.svg.append('rect').attr('width', 2).attr('height',this.containerSize.h ).attr('x', this.containerSize.w /2 - 1)
+                    
                 },
 
                 createDots: function(nbrDots, radius){
@@ -49,30 +66,62 @@
                             cx: this._getXpos(index, nbrDots, radius, this.containerSize.w)
                         }                      
                     },this);
+                    var t = d3.transition()
+                        .duration(750)
+                        .ease(d3.easeSinInOut).delay(500);
 
+                    var newPosition = 30;
+
+                    d3.select('svg').on('mousedown', function(evt){
+                        console.log(evt, newPosition)
+                        newPosition = 60
+                    })
                     this.svg.selectAll('circle').data(csCircles).enter().append('circle')
                         .attr('r', function(d,i){return d.r})
                         .attr('cx', function(d,i){return d.cx})
-                        .attr('cy',  10)
-                        .text(function(d,i){return i})
-                        
-                        .style("fill" ,'red')
-                },
+                        .attr('cy',  20)                        
+                        .style("fill" ,this.params.color)                        
+                        .transition(t)
+                            .delay(function (d, i) { return 250 * i;}) // delay create animation async for each circle
+                            .on('start', function repeat() {                               
+                                d3.active(this) 
+                                    .style("opacity", "1") // first anim
+                                    .attr('r', 20)
+                                    .attr('cx' , function(d,i){return d.cx + newPosition})
+                                    // .attr('cx' , function(d,i){                                        
+                                    //     return getValue(d.cx)
+                                    // })
+                                    .transition() 
+                                        .attr('r', function(d,i){return d.r})// second anim to go back to init postion
+                                        .style("opacity", "1") // first anim                            
+                                        .attr('cx', function(d,i){return d.cx})
+                                    .transition() // repeat anim
+                                        .on('start', repeat);
+
+                            });
+
+                        function getValue(cx){
+                            return cx + 30
+                        }
+                },      
+
+                getMousePosition: function(x,y){
+                    console.log(x,y)
+                },          
 
                 _getXpos: function(index, nbrDots, radius, dimenssion){
                     var center = (dimenssion / 2);
-                    var offset = (radius * 2) + this.margin + 10;
+                    var offset = (radius * 2) + this.margin;
                     var isEven = (nbrDots % 2 === 0) ? true : false;
                     if(isEven){
                         if(index < nbrDots/2){
                            var final = center - (offset * (nbrDots/2 - index)) 
                         } else {
-                           var final = center + (offset * ((nbrDots/2 - index) + 1)) 
+                           var final = center + (offset * (index - nbrDots/2)) 
                         }
-                    } // else TODO later for odd number
-                    console.log(center, final + offset)
-                    
-                    return final + offset
+                    } // else TODO later for odd number    
+                    console.log('index ', index, final)               
+                    return final + radius
                 }
             }
            // init(param)
@@ -125,8 +174,9 @@
        
         var myLoader = new Loader().init({
             nrbDots: 4,
-            dotRadius: 10,
-            container:'body'
+            dotRadius: 12.5,
+            container:'.svg',
+            color: 'darkgray'
         });
     </script>
 </body>

@@ -11,7 +11,7 @@
     .svg{
         width:300px;
         height:150px;
-        background-color: pink;
+        /* background-color: pink; */
     }
 </style>
 <body>
@@ -32,10 +32,6 @@
                     this.params = params;
                     this.createSVG(params.container);
                     this.createDots(params.nrbDots, params.dotRadius);
-
-                    // document.querySelector(params.container).addEventListener('mousemove', function(e){
-                    //     this.getMousePosition(e.x, e.y) 
-                    // })
                 },
 
                 createSVG: function(domNode){
@@ -71,10 +67,17 @@
                         .ease(d3.easeSinInOut).delay(500);
 
                     var newPosition = 30;
-
+                    /**
+                     * Get mouse position to change ball destination
+                    */
                     d3.select('svg').on('mousedown', function(evt){
                         console.log(evt, newPosition)
-                        newPosition = 60
+                        var containerW = Number(d3.select('svg').style('width').replace('px',''))/2;
+                        if(d3.mouse(this)[0] < containerW ){
+                           newPosition =  -(containerW - d3.mouse(this)[0])
+                        } else {
+                            newPosition = d3.mouse(this)[0] - containerW;
+                        }
                     })
                     this.svg.selectAll('circle').data(csCircles).enter().append('circle')
                         .attr('r', function(d,i){return d.r})
@@ -87,13 +90,10 @@
                                 d3.active(this) 
                                     .style("opacity", "1") // first anim
                                     .attr('r', 20)
-                                    .attr('cx' , function(d,i){return d.cx + newPosition})
-                                    // .attr('cx' , function(d,i){                                        
-                                    //     return getValue(d.cx)
-                                    // })
+                                    .attr('cx' , function(d,i){return d.cx + newPosition})                                   
                                     .transition() 
                                         .attr('r', function(d,i){return d.r})// second anim to go back to init postion
-                                        .style("opacity", "1") // first anim                            
+                                        .style("opacity", 0.3) // second anim                      
                                         .attr('cx', function(d,i){return d.cx})
                                     .transition() // repeat anim
                                         .on('start', repeat);
@@ -176,7 +176,7 @@
             nrbDots: 4,
             dotRadius: 12.5,
             container:'.svg',
-            color: 'darkgray'
+            color: '#a20707'
         });
     </script>
 </body>

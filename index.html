@@ -57,6 +57,8 @@
                     // debug
                     this.svg.append('rect').attr('width', 2).attr('height',this.containerSize.h ).attr('x', this.containerSize.w /2 - 1);
 
+                    this.svg.append('circle').attr("class" , "animatedCircle");
+
                 },
 
                 createDots: function(nbrDots, radius, speed) {
@@ -85,9 +87,7 @@
                      * Get mouse position to change ball destination/origin
                      */
                     d3.select(this.params.container).on('mousedown', function(evt) {
-                        console.log(evt, newDestination)
                         var containerW = Number(d3.select('svg').style('width').replace('px', '')) / 2;
-
                         if(mode === 'destination'){
                             newOrigin = 0;
                             if (d3.mouse(this)[0] < containerW) {
@@ -104,8 +104,16 @@
                             }
                         }
                        
-                    })
+                    });
+                    // attach mousemove handler
+                    // d3.select(this.params.container).on('mousemove', this.handleMouseMove);
+                    d3.select(this.params.container).on('mousemove', function(evt){
+                        var mousePos = d3.mouse(this)[0];
+                        //d3.
+                    });
+
                     this.svg.selectAll('circle').data(csCircles).enter().append('circle')
+                        .on('mouseover', this.handleMouseOverCircle)
                         .attr('r', function(d, i) {
                             return d.r
                         })
@@ -117,7 +125,7 @@
                         .transition(t)
                         .delay(function(d, i) {
                             return speed * i;
-                        }) // delay create animation async for each circle
+                        }) // delay create animation async for each circle                        
                         .on('start', function repeat() {
                             d3.active(this)
                                 .style("opacity", "1") // first anim
@@ -136,6 +144,20 @@
                                 .transition(t) // repeat anim
                                 .on('start', repeat);
                         });
+                },
+                handleMouseOverCircle:function(d,i){
+                    // 
+                    d3.select(this.parentNode).select('.animatedCircle').attr("stroke" , "#f72d3f")
+                        .attr("stroke-width" , 3)
+                        .attr("fill" , "none")
+                        .attr("r" , 25)
+                        .style("opacity" , 1)
+                        .attr("cx" , d.cx)
+                        .attr("cy" , d.cy);
+              
+                },
+                handleMouseMove: function(){
+                    var mousePos = d3.mouse(this)[0];
                 },
 
                 /**
@@ -177,7 +199,8 @@
             container: '.svg',
             color: '#a20707',
             clickToChange:'origin',
-            speed: 250
+            speed: 100,
+            
         });
 
         var myLoader = new Loader().init({

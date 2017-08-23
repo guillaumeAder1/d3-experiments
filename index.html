@@ -7,7 +7,8 @@
 </head>
 
 <style>
-    .svg, .svg2 {
+    .svg,
+    .svg2 {
         width: 300px;
         height: 150px;
         background-color: lightgray;
@@ -21,7 +22,7 @@
     <div class="svg2"></div>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script>
-        var Loader = function(params) {                    
+        var Loader = function(params) {
             // @param {String} clickToChange - define behaviour of the Click event
             //     - 'origin' : the new origin is the mouse position
             //     - 'destination': destination is the mouse position       
@@ -55,17 +56,19 @@
                         .attr("height", this.containerSize.h);
 
                     // debug
-                    this.svg.append('rect').attr('width', 2).attr('height',this.containerSize.h ).attr('x', this.containerSize.w /2 - 1);
+                    this.svg.append('rect').attr('width', 2).attr('height', this.containerSize.h).attr('x', this.containerSize.w / 2 - 1);
 
-                    this.svg.append('circle').attr("class" , "animatedCircle");
+                    this.svg.append('circle').attr("class", "animatedCircle");
 
                 },
 
                 createDots: function(nbrDots, radius, speed) {
                     var newDestination = 30;
                     var newOrigin = 30;
+                    var newPosY = originPosY = Number(d3.select('svg').style('height').replace('px', '')) / 2;;
+                    // var originPosY = 20;
                     var mode = this.params.clickToChange;
-                    var newRadius = radius + (radius/2);
+                    var newRadius = radius + (radius / 2);
                     var loopLength = speed * nbrDots;
 
                     var circles = new Array(nbrDots).fill({
@@ -77,50 +80,53 @@
                             cx: this._getXpos(index, nbrDots, radius, this.containerSize.w)
                         }
                     }, this);
+
+
+                    /***/
                     var t = d3.transition()
                         .duration(loopLength)
                         .ease(d3.easeSinInOut)
                         //.delay(500);
 
-                    
+
                     /**
                      * Get mouse position to change ball destination/origin
                      */
                     d3.select(this.params.container).on('mousedown', function(evt) {
                         var containerW = Number(d3.select('svg').style('width').replace('px', '')) / 2;
-                        if(mode === 'destination'){
+                        var mouseX = d3.mouse(this)[0];
+                        var mouseY = d3.mouse(this)[1];
+
+                        if (mode === 'destination') {
                             newOrigin = 0;
-                            if (d3.mouse(this)[0] < containerW) {
-                                newDestination = -(containerW - d3.mouse(this)[0])
+                            if (mouseX < containerW) {
+                                newDestination = - (containerW - mouseX)
                             } else {
-                                newDestination = d3.mouse(this)[0] - containerW;
+                                newDestination = mouseX - containerW;
                             }
-                        } else if(mode === 'origin'){
+                        } else if (mode === 'origin') {
                             newDestination = 0;
-                             if (d3.mouse(this)[0] < containerW) {
-                                newOrigin = -(containerW - d3.mouse(this)[0])
+                            if (mouseX < containerW) {
+                                newOrigin = -(containerW - mouseX)
                             } else {
-                                newOrigin = d3.mouse(this)[0] - containerW;
+                                newOrigin = mouseX - containerW;
                             }
                         }
-                       
+                        newPosY = mouseY;
+
                     });
                     // attach mousemove handler
                     // d3.select(this.params.container).on('mousemove', this.handleMouseMove);
-                    d3.select(this.params.container).on('mousemove', function(evt){
+                    d3.select(this.params.container).on('mousemove', function(evt) {
                         var mousePos = d3.mouse(this)[0];
                         //d3.
                     });
 
                     this.svg.selectAll('circle').data(csCircles).enter().append('circle')
                         .on('mouseover', this.handleMouseOverCircle)
-                        .attr('r', function(d, i) {
-                            return d.r
-                        })
-                        .attr('cx', function(d, i) {
-                            return d.cx
-                        })
-                        .attr('cy', 20)
+                        .attr('r', function(d, i) { return d.r;})
+                        .attr('cx', function(d, i) { return d.cx; })
+                        .attr('cy', originPosY)
                         .style("fill", this.params.color)
                         .transition(t)
                         .delay(function(d, i) {
@@ -130,33 +136,31 @@
                             d3.active(this)
                                 .style("opacity", "1") // first anim
                                 .attr('r', newRadius)
-                                .attr('cx', function(d, i) {
-                                    return d.cx + newDestination
-                                })
+                                .attr('cy', function(d,y){ return newPosY;})
+                                .attr('cx', function(d, i) { return d.cx + newDestination})
                                 .transition(t)
-                                    .attr('r', function(d, i) {
-                                        return d.r
-                                    }) // second anim to go back to init postion
+                                    .attr('cy', function(d,y){ return originPosY;})                                
+                                    .attr('r', function(d, i) {return d.r}) // second anim to go back to init postion
                                     .style("opacity", 0.3) // second anim
-                                    .attr('cx', function(d, i) {
-                                        return d.cx + newOrigin;
-                                    })
+                                    .attr('cx', function(d, i) {return d.cx + newOrigin;})
                                 .transition(t) // repeat anim
                                 .on('start', repeat);
                         });
                 },
-                handleMouseOverCircle:function(d,i){
+                handleMouseOverCircle: function(d, i) {
                     // 
-                    d3.select(this.parentNode).select('.animatedCircle').attr("stroke" , "#f72d3f")
-                        .attr("stroke-width" , 3)
-                        .attr("fill" , "none")
-                        .attr("r" , 25)
-                        .style("opacity" , 1)
-                        .attr("cx" , d.cx)
-                        .attr("cy" , d.cy);
-              
+                    console.log(d, i);
+                    console.log(d3.select(this));
+                    d3.select(this.parentNode).select('.animatedCircle').attr("stroke", "#f72d3f")
+                        .attr("stroke-width", 3)
+                        .attr("fill", "none")
+                        .attr("r", 25)
+                        .style("opacity", 1)
+                        .attr("cx", d.cx)
+                        .attr("cy", d.cy);
+
                 },
-                handleMouseMove: function(){
+                handleMouseMove: function() {
                     var mousePos = d3.mouse(this)[0];
                 },
 
@@ -178,13 +182,13 @@
                             var final = center + (offset * (index - nbrDots / 2))
                         }
                     } else {
-                        var midIndex = Math.floor(nbrDots/2);
+                        var midIndex = Math.floor(nbrDots / 2);
                         if (index < midIndex) {
                             var final = center - (offset * (nbrDots / 2 - index))
                         } else {
                             var final = center + (offset * (index - nbrDots / 2))
                         }
-                        
+
                     }
                     // console.log('index ', index, final)
                     return final + radius
@@ -198,9 +202,9 @@
             dotRadius: 12.5,
             container: '.svg',
             color: '#a20707',
-            clickToChange:'origin',
+            clickToChange: 'origin',
             speed: 100,
-            
+
         });
 
         var myLoader = new Loader().init({
@@ -209,8 +213,8 @@
             dotRadius: 5,
             container: '.svg2',
             color: '#a20707',
-            clickToChange:'destination',
-            speed:125
+            clickToChange: 'destination',
+            speed: 125
         });
     </script>
 </body>

@@ -118,7 +118,7 @@
                         //d3.
                     });
 
-                    this.svg.selectAll('circle').data(csCircles).enter().append('circle')                        
+                    this.svg.selectAll('circle').data(csCircles).enter().append('g').append('circle')                        
                         .attr('r', function(d, i) { return d.r;})
                         .attr('cx', function(d, i) { return d.cx; })
                         .attr('cy', originPosY)
@@ -161,7 +161,7 @@
                         .attr("cy", posy).transition()
                             .duration(500)
                             .style('opacity', 0)
-                            //.remove();
+                            .remove();
 
                 },
                 handleMouseMove: function() {

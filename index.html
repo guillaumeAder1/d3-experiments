@@ -36,7 +36,6 @@
                 init: function(params) {
                     this.params = params;
                     this.margin = this.params.margin;
-
                     this.createSVG(params.container);
                     this.createDots(params.nrbDots, params.dotRadius, params.speed);
 
@@ -75,7 +74,8 @@
                     var csCircles = circles.map(function(circle, index) {
                         return {
                             r: circle.r,
-                            cx: this._getXpos(index, nbrDots, radius, this.containerSize.w)
+                            cx: this._getXpos(index, nbrDots, radius, this.containerSize.w),
+                            cy:originPosY
                         }
                     }, this);
 
@@ -94,7 +94,6 @@
                         var containerW = Number(d3.select('svg').style('width').replace('px', '')) / 2;
                         var mouseX = d3.mouse(this)[0];
                         var mouseY = d3.mouse(this)[1];
-
                         if (mode === 'destination') {
                             newOrigin = 0;
                             if (mouseX < containerW) {
@@ -111,7 +110,6 @@
                             }
                         }
                         newPosY = mouseY;
-
                     });
                     // attach mousemove handler
                     // d3.select(this.params.container).on('mousemove', this.handleMouseMove);
@@ -120,12 +118,12 @@
                         //d3.
                     });
 
-                    this.svg.selectAll('circle').data(csCircles).enter().append('circle')
-                        .on('mouseover', this.handleMouseOverCircle)
+                    this.svg.selectAll('circle').data(csCircles).enter().append('circle')                        
                         .attr('r', function(d, i) { return d.r;})
                         .attr('cx', function(d, i) { return d.cx; })
                         .attr('cy', originPosY)
                         .style("fill", this.params.color)
+                        .on('mouseover', this.handleMouseOverCircle)
                         .transition(t)
                         .delay(function(d, i) {
                             return speed * i;
@@ -149,13 +147,21 @@
                     // 
                     console.log(d, i);
                     console.log(d3.select(this));
-                    d3.select(this.parentNode).select('.animatedCircle').attr("stroke", "#f72d3f")
+                    var color = d3.select(this).style('fill')
+                    var posx = d3.select(this).attr('cx')
+                    var posy = d3.select(this).attr('cy')
+                    //d3.select(this.parentNode).select('.animatedCircle').attr("stroke", "#f72d3f")
+                    d3.select(this.parentNode).append('circle')
+                        .attr("stroke", color)
                         .attr("stroke-width", 3)
                         .attr("fill", "none")
                         .attr("r", 25)
-                        .style("opacity", 1)
-                        .attr("cx", d.cx)
-                        .attr("cy", d.cy);
+                        .style("opacity", .4)
+                        .attr("cx", posx)
+                        .attr("cy", posy).transition()
+                            .duration(500)
+                            .style('opacity', 0)
+                            //.remove();
 
                 },
                 handleMouseMove: function() {

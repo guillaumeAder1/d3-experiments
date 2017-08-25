@@ -18,10 +18,21 @@
 <body>
     <div id="mySVG"></div>
     <div class="svg"></div>
+    <div id='_svg'></div>
     <br/>
     <div class="svg2"></div>
     <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="index.js"></script>
     <script>
+
+       
+
+        var t = new d3Grouping({
+            toto: 'tototy',
+            dom: '#_svg'
+        })
+
+        t._do()
         var Loader = function(params) {
             // @param {String} clickToChange - define behaviour of the Click event
             //     - 'origin' : the new origin is the mouse position
@@ -111,13 +122,7 @@
                         }
                         newPosY = mouseY;
                     });
-                    // attach mousemove handler
-                    // d3.select(this.params.container).on('mousemove', this.handleMouseMove);
-                    d3.select(this.params.container).on('mousemove', function(evt) {
-                        var mousePos = d3.mouse(this)[0];
-                        //d3.
-                    });
-
+                    
                     this.svg.selectAll('circle').data(csCircles).enter().append('g').append('circle')                        
                         .attr('r', function(d, i) { return d.r;})
                         .attr('cx', function(d, i) { return d.cx; })
@@ -200,25 +205,25 @@
             }
         }
 
-        var myLoader = new Loader().init({
-            margin: 5,
-            nrbDots: 5,
-            dotRadius: 12.5,
-            container: '.svg',
-            color: '#a20707',
-            clickToChange: 'origin',
-            speed: 100,
+        // var myLoader = new Loader().init({
+        //     margin: 5,
+        //     nrbDots: 5,
+        //     dotRadius: 12.5,
+        //     container: '.svg',
+        //     color: '#a20707',
+        //     clickToChange: 'origin',
+        //     speed: 100,
 
-        });
+        // });
 
-        var myLoader = new Loader().init({
-            margin: 20,
-            nrbDots: 7,
-            dotRadius: 5,
-            container: '.svg2',
-            color: '#a20707',
-            clickToChange: 'destination',
-            speed: 125
-        });
+        // var myLoader = new Loader().init({
+        //     margin: 20,
+        //     nrbDots: 7,
+        //     dotRadius: 5,
+        //     container: '.svg2',
+        //     color: '#a20707',
+        //     clickToChange: 'destination',
+        //     speed: 125
+        // });
     </script>
 </body>
